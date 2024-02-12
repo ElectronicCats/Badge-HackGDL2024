@@ -28,3 +28,9 @@ fp-info-cache
 hardware/Template-KiCAD-Project-CI-backups/
 
 *.zip
+
+# Build Data
+/firmware/Build*
+Build**
+firmware/.vscode
+**.sh
