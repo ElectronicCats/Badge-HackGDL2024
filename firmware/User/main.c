@@ -17,6 +17,9 @@
   * License. You may obtain a copy of the License at:
   *                        opensource.org/licenses/BSD-3-Clause
   *
+  * J-Link Connections: https://private-user-images.githubusercontent.com/44976441/277049150-2c44cddc-163c-4924-840f-2b99760bbca3.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MDc5NTA5NTYsIm5iZiI6MTcwNzk1MDY1NiwicGF0aCI6Ii80NDk3NjQ0MS8yNzcwNDkxNTAtMmM0NGNkZGMtMTYzYy00OTI0LTg0MGYtMmI5OTc2MGJiY2EzLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDAyMTQlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwMjE0VDIyNDQxNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWYyODFkMTNjN2YyMDgyZTJhZmExYzc3MWI0M2YwYzBjZmRiZWYxYmJiMTY3NjE1ZDU5YmU3Njc3NThhMjAwOTUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.hkoYOHl2-wbGiy8-bgevjSikxN3sZxpCxZn3IUqJlPI
+  * PUYA instructions: https://github.com/ElectronicCats/puya-projects
+  * 
   ******************************************************************************
   */
 
@@ -32,6 +35,25 @@ static void APP_LedConfig(void);
 int delay=150, delay1=300, delay2=250, delay3=250;
 int times=0, init=0;
 int sequenceNumber = 1;
+
+int message[] = {72,65,67,75,71,68,76,46};
+enum puertos {
+  B3=0x0001,
+  B2=0x0002,
+  B1=0x0040,
+  B0=0x0080
+};
+
+void bitsSequence(int bit){
+  if(bit==B3)
+    HAL_GPIO_OnPin(GPIOF,bit);
+  else
+    HAL_GPIO_OnPin(GPIOA,bit);
+}
+
+void ASCII2HEX(){
+
+}
 
 //Sequence 1
 void circleSequence(){
@@ -201,6 +223,11 @@ void blinkSequence(){
   HAL_Delay(delay1);
 }
 
+//Sequence 8
+void encryptedMessage(){
+  
+}
+
 void startSequence(){
   HAL_GPIO_OnPin(GPIOF, GPIO_PIN_0);  //1
   HAL_Delay(delay);
@@ -278,7 +305,8 @@ int main(void)
   //printf("\r\nPY32F0xx LED Toggle Demo\r\nSystem Clock: %ld\r\n", SystemCoreClock);
   while (1)
   {
-    sequences(sequenceNumber);
+    //sequences(sequenceNumber);
+    bitsSequence(B0);
 
     static uint32_t cnt = 0;
     printf("Hello world: %u\r\n", cnt++);
