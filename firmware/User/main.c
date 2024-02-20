@@ -25,6 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "py32f0xx_bsp_printf.h"
+#include <stdint.h>
 
 /* Private define ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -32,78 +33,43 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 static void APP_LedConfig(void);
-int delay = 150, delay1 = 300, delay2 = 250, delay3 = 250, delay4 = 10, halfPeriod = 750, interimPeriod = 1000;
-int times = 0, init = 0, timesSequences = 14, timesSecretCode = 4;
-int sequenceNumber = 1;
+uint16_t delay1 = 300, interimPeriod = 1000;
+uint8_t delay = 150, delay2 = 250, delay3 = 250;
+uint8_t times = 0, init = 0, timesSequences = 14, timesSecretCode = 4, sequenceNumber = 1;
 
-int message[] = {72, 65, 67, 75, 71, 68, 76, 46};
-// 72=0x48=b01001000
-// 65=0x41=b01000001
-// 67=0x43=b01000011
-// 75=0x4B=b01001011
-// 71=0x47=b01000111
-// 68=0x44=b01000100
-// 76=0x4C=b01001100
-// 46=0x2E=b00101110
+uint32_t ports[] = {GPIOF, GPIOA, GPIOA, GPIOA};
+uint8_t pins[] = {0x0001, 0x0002, 0x0040, 0x0080};
 
-int ports[] = {0x0001, 0x0002, 0x0040, 0x0080};
+char message[] = {"HACKGDL"};
 
-// period 1.5s
-void setBits(int nibble[4])
+void setBits(uint8_t nibble)
 {
-  for (int c = 0; c < 4; c++)
+  uint8_t nibbleAux = nibble;
+  for (uint8_t i = 0; i < 4; i++)
   {
-    if (nibble[c] == 1) // Set the pin On
+    if (nibbleAux & 0x01) // LED ON
     {
-      if (c == 0)
-      {
-        HAL_GPIO_OnPin(GPIOF, ports[c]); // PF0
-      }
-      else
-      {
-        HAL_GPIO_OnPin(GPIOA, ports[c]); // PAx
-      }
-    }
-    else // Set the pin Off
-    {
-      if (c == 0)
-      {
-        HAL_GPIO_OffPin(GPIOF, ports[c]); // PF0
-      }
-      else
-      {
-        HAL_GPIO_OffPin(GPIOA, ports[c]); // PAx
-      }
-    }
-  }
-}
-
-void ASCII2BIN(int decimal)
-{
-  int rest;
-  int nibble1[4] = {0}, nibble2[4] = {0};
-  int c = 0, j = 0;
-  while (decimal > 0)
-  {
-    rest = decimal % 2;
-    if (c < 4)
-    {
-      nibble1[c] = rest;
-      c++;
+      HAL_GPIO_OnPin(ports[i], pins[i]);
     }
     else
     {
-      nibble2[j] = rest;
-      j++;
+      HAL_GPIO_OffPin(ports[i], pins[i]);
     }
-    decimal /= 2;
+    nibbleAux = nibble >> i + 1;
   }
-  // nibble 1
-  setBits(nibble1);
-  HAL_Delay(halfPeriod);
-  // nibble 2
-  setBits(nibble2);
-  HAL_Delay(halfPeriod);
+  HAL_Delay(1000);
+}
+
+void HEX2NIBBLE()
+{
+  uint8_t nibble1, nibble2;
+  for (uint8_t i = 0; i < sizeof(message) - 1; i++)
+  {
+    nibble1 = message[i] & 0x0F;
+    nibble2 = message[i] >> 4;
+    setBits(nibble1);
+    setBits(nibble2);
+  }
 }
 
 // Sequence 1
@@ -269,15 +235,9 @@ void loadingSequence()
 // Seqeuence 7
 void blinkSequence()
 {
-  HAL_GPIO_OnPin(GPIOF, GPIO_PIN_0);
-  HAL_GPIO_OnPin(GPIOA, GPIO_PIN_1);
-  HAL_GPIO_OnPin(GPIOA, GPIO_PIN_6);
-  HAL_GPIO_OnPin(GPIOA, GPIO_PIN_7);
+  ledsOn();
   HAL_Delay(delay1);
-  HAL_GPIO_OffPin(GPIOF, GPIO_PIN_0);
-  HAL_GPIO_OffPin(GPIOA, GPIO_PIN_1);
-  HAL_GPIO_OffPin(GPIOA, GPIO_PIN_6);
-  HAL_GPIO_OffPin(GPIOA, GPIO_PIN_7);
+  ledsOff();
   HAL_Delay(delay1);
 }
 
@@ -288,6 +248,7 @@ void startSequence()
   HAL_GPIO_OnPin(GPIOA, GPIO_PIN_1); // 12
   HAL_Delay(delay);
 }
+
 // This sequence maybe need to be deleted
 void ledsOff()
 {
@@ -364,25 +325,20 @@ int main(void)
   APP_LedConfig();
 
   BSP_USART_Config();
-  // int number=254;
-  //  printf("\r\nPY32F0xx LED Toggle Demo\r\nSystem Clock: %ld\r\n", SystemCoreClock);
 
-  for (int c = 1; c < 8; c++)
+  for (uint8_t c = 1; c < 7; c++)
   {
     sequences(c);
   }
-  for (int c2 = 0; c2 < timesSecretCode; c2++)
+
+  for (uint8_t c2 = 0; c2 < timesSecretCode; c2++)
   {
-    //indicators
+    sequences(7); //Blink Sequence 3 times
     ledsOff();
     HAL_Delay(interimPeriod);
-    for (int c = 0; c < 8; c++)
-    {
-      //sequence
-      ASCII2BIN(message[c]);
-      ledsOff();
-      HAL_Delay(interimPeriod);
-    }
+    HEX2NIBBLE();
+    ledsOff();
+    HAL_Delay(interimPeriod);
   }
 }
 
