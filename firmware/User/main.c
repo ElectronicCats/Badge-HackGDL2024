@@ -325,20 +325,23 @@ int main(void)
   APP_LedConfig();
 
   BSP_USART_Config();
-
-  for (uint8_t c = 1; c < 7; c++)
+  
+  while (1)
   {
-    sequences(c);
-  }
+    for (uint8_t c = 1; c < 7; c++)
+    {
+      sequences(c);
+    }
 
-  for (uint8_t c2 = 0; c2 < timesSecretCode; c2++)
-  {
-    sequences(7); //Blink Sequence 3 times
-    ledsOff();
-    HAL_Delay(interimPeriod);
-    HEX2NIBBLE();
-    ledsOff();
-    HAL_Delay(interimPeriod);
+    for (uint8_t c2 = 0; c2 < timesSecretCode; c2++)
+    {
+      sequences(7); // Blink Sequence 3 times
+      ledsOff();
+      HAL_Delay(interimPeriod);
+      HEX2NIBBLE();
+      ledsOff();
+      HAL_Delay(interimPeriod);
+    }
   }
 }
 
