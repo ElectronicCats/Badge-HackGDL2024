@@ -1,11 +1,14 @@
-
 # Badge Hack GDL 2024
-
+Inspirado en la piñata mas famosa del Guadalajara este es el badge electronico de [HackGDL](https://hackgdl.net/)
 
 ## Características
 
-- Puya
+- Microcontrolador Puya PY32F002AA15M6TU
 - Baterias CR2030
+- 4 LEDs SMD
+
+# Firmware
+- Para hacer cambios en el firmware revisar el [README](https://github.com/ElectronicCats/Badge-HackGDL2024/tree/main/firmware#readme)
 
 ## License
 <a>
